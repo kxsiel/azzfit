@@ -14,14 +14,15 @@
             --black: #050505;
         }
 
-// OBSŁUGA ZATRZYMANIA MUZYKI PO OPUSZCZENIU KARTY
+// --- FIX: STOP MUZYKI PO ZMIANIE KARTY ---
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+        // Jeśli użytkownik wyjdzie z karty - pauza
         music.pause();
     } else {
-        // Wznawia tylko jeśli system został już zainicjowany
+        // Jeśli wróci i system był już odpalony (introSkipped) - graj dalej
         if (introSkipped) {
-            music.play().catch(e => console.log("Audio resume blocked"));
+            music.play().catch(e => console.log("System standby..."));
         }
     }
 });

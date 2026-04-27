@@ -283,19 +283,36 @@
             music.volume = e.target.value;
         });
 
-        function initSystem() {
+function initSystem() {
+            // Ukrywamy ekran wejściowy
             document.getElementById('enter-screen').style.display = 'none';
-            music.play().catch(e => console.log("Audio block: " + e));
+            
+            // Wymuszamy załadowanie i start muzyki
+            music.load(); // Przeładowuje źródło, żeby przeglądarka je "zauważyła"
             music.volume = volumeControl.value;
             
-            // Glitch effect
+            // Obietnica odtworzenia - najpewniejszy sposób w 2026
+            let playPromise = music.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(_ => {
+                    console.log("System audio: READY");
+                }).catch(error => {
+                    console.log("Audio block bypass: Kliknij jeszcze raz gdziekolwiek");
+                    // Jeśli nadal blokuje, odpalamy przy następnym kliku w body
+                    document.body.addEventListener('click', () => {
+                        music.play();
+                    }, { once: true });
+                });
+            }
+            
+            // Reszta efektów (glitch)
             setInterval(() => {
                 if(Math.random() > 0.95) {
                     document.body.style.filter = 'invert(1) hue-rotate(180deg)';
                     setTimeout(() => { document.body.style.filter = 'none'; }, 50);
                 }
             }, 3000);
-        }
-    </script>
+        }    </script>
 </body>
 </html>

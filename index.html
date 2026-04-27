@@ -203,6 +203,8 @@
         </button>
     </div>
 
+    
+
     <audio id="bg-music" loop>
         <source src="fiut.mp3" type="audio/mp3">
     </audio>
@@ -334,6 +336,16 @@
                     }, { once: true });
                 });
             }
+
+            document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                music.pause();
+            } else {
+                if (document.getElementById('enter-screen').style.display === 'none') {
+                    music.play();
+                }
+            }
+        });
             
             setInterval(() => {
                 if(Math.random() > 0.95) {

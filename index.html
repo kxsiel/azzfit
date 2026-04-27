@@ -14,6 +14,23 @@
             --black: #050505;
         }
 
+        /* CUSTOMOWY PASEK PRZEWIJANIA */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background: var(--black);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--dark-tox);
+            border: 1px solid var(--tox-green);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--tox-green);
+        }
+        
+        html {
+            scroll-behavior: smooth; /* Standardowy smooth scroll przeglądarki, który nie psuje JS */
+        }
+
         body {
             background-color: var(--black);
             color: var(--tox-green);
@@ -25,36 +42,18 @@
             position: relative;
         }
 
-/* WARSTWA KOLORUJĄCA - teraz działa jak "żarówka" */
-.color-tint {
-    position: absolute;
-    inset: 0;
-    background: var(--tox-green); /* Używamy jasnej zieleni */
-    mix-blend-mode: color; /* Nadaje kolor bez drastycznego przyciemniania */
-    pointer-events: none;
-    z-index: -2;
-}
+        .image-bg {
+            position: fixed;
+            inset: 0;
+            background: url('https://cdn.jumpshare.com/preview/xEsA4RiapbC10FNTb7kx_d-aQwOJU98MXcIIIUgoHIlWkyrACaXw7Q_tHd4RqM4Vi5wnx0mw_oeUl6aLl9YGREFrpWYPl5NJNeuPmcc9Qm4') no-repeat center center;
+            background-size: cover;
+            filter: grayscale(100%) brightness(1.5) contrast(150%) sepia(100%) hue-rotate(70deg) saturate(500%);
+            mix-blend-mode: screen; 
+            opacity: 0.15;
+            z-index: -3;
+            pointer-events: none;
+        }
 
-/* 1. GIF BACKGROUND - teraz z efektem świecenia */
-.image-bg {
-    position: fixed;
-    inset: 0;
-    background: url('https://cdn.jumpshare.com/preview/xEsA4RiapbC10FNTb7kx_d-aQwOJU98MXcIIIUgoHIlWkyrACaXw7Q_tHd4RqM4Vi5wnx0mw_oeUl6aLl9YGREFrpWYPl5NJNeuPmcc9Qm4') no-repeat center center;
-    background-size: cover;
-    
-    /* KLUCZOWE ZMIANY: */
-    /* Grayscale usuwa syf kolorystyczny, brightness podbija światło, a drop-shadow robi poświatę (glow) */
-    filter: grayscale(100%) brightness(1.5) contrast(150%) sepia(100%) hue-rotate(70deg) saturate(500%);
-    
-    /* mix-blend-mode: screen sprawia, że tylko jasne elementy "świecą" przez czerń */
-    mix-blend-mode: screen; 
-    
-    opacity: 0.15; /* Podkręciłem z 0.15 na 0.25, żeby bardziej "biło" po oczach */
-    z-index: -3;
-    pointer-events: none;
-}
-
-        /* 2. GRID BACKGROUND - KRZYŻYKI/SIATKA */
         .grid-bg {
             position: fixed; 
             inset: 0;
@@ -66,9 +65,10 @@
             pointer-events: none;
         }
 
-        /* 3. CRT/VHS OVERLAY - LINIE I FLICKER */
         .crt-overlay {
-            position: fixed; inset: 0;
+            position: fixed; 
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%), 
                         linear-gradient(90deg, rgba(0, 255, 65, 0.05), rgba(0, 255, 65, 0.02), rgba(0, 255, 65, 0.05));
             z-index: 9999;
@@ -81,7 +81,6 @@
             0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; }
         }
 
-        /* CELOWNIK */
         #cursor-container {
             position: fixed;
             top: 0; left: 0;
@@ -91,11 +90,11 @@
         }
 
         #crosshair {
-            position: absolute;
+            position: fixed; /* FIXED ZAŁATWIA PROBLEM ZE SCROLLEM */
             width: 80px; height: 80px;
             transform: translate(-50%, -50%);
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.05s ease-out;
+            will-change: left, top;
         }
 
         .ch-line { position: absolute; background: var(--tox-green); box-shadow: 0 0 15px var(--tox-green); }
@@ -112,7 +111,6 @@
             100% { transform: scale(2); opacity: 0; }
         }
 
-        /* KARTY */
         .war-card {
             background: rgba(0, 20, 0, 0.9);
             border: 2px solid var(--tox-green);
@@ -127,7 +125,6 @@
             box-shadow: 0 0 40px var(--tox-green);
         }
 
-        /* PASEK NA DOLE */
         #radar-bar {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--tox-green); color: black; z-index: 10000;
@@ -140,6 +137,15 @@
         @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         #flash { position: fixed; inset: 0; background: var(--tox-green); opacity: 0; z-index: 10005; pointer-events: none; }
+
+        .player-container {
+            border: 2px solid var(--tox-green);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 10, 0, 0.8);
+        }
     </style>
 </head>
 <body class="py-10 px-4">
@@ -154,7 +160,7 @@
             <div class="ch-line ch-h"></div>
             <div class="ch-line ch-v"></div>
             <div class="ch-circle"></div>
-            <div style="position:absolute; color:var(--tox-green); font-size:10px; bottom:-20px;" id="coords">X:0 Y:0</div>
+            <div style="position:absolute; color:var(--tox-green); font-size:10px; bottom:-20px; white-space:nowrap;" id="coords">X:0 Y:0</div>
         </div>
     </div>
 
@@ -170,8 +176,7 @@
         <source src="fiut.mp3" type="audio/mp3">
     </audio>
 
-    <div class="max-w-[700px] mx-auto space-y-10 relative z-10">
-        
+    <div class="max-w-[700px] mx-auto space-y-10 relative z-10 pb-32">
         <div class="war-card p-8">
             <div class="flex items-center gap-6">
                 <img src="https://i.imgur.com/Dx3U76e.png" class="w-32 h-32 border-2 border-green-500 brightness-150 contrast-150" alt="AZZFIT">
@@ -196,20 +201,30 @@
             </div>
         </a>
 
+        <a href="https://instagram.com/twoj_profil" target="_blank" class="war-card block p-6 group">
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="text-xs mb-1 opacity-70">[FOLLOW ME!]</div>
+                    <div class="text-3xl font-black">AZZFIT - INSTAGRAM</div>
+                </div>
+                <div class="text-5xl group-hover:translate-x-4 transition-transform"><i class="fab fa-instagram"></i></div>
+            </div>
+        </a>
+
         <div class="grid grid-cols-2 gap-4">
-            <a href="#" class="war-card p-6 flex flex-col items-center gap-3">
+            <a href="https://open.spotify.com/artist/1vJnRexjkzusA8ZBZUkp4o?si=0_qjS3F9SQ-gNXufSIi4yA" class="war-card p-6 flex flex-col items-center gap-3">
                 <i class="fab fa-spotify text-4xl"></i>
                 <span class="text-xs font-black">SPOTIFY</span>
             </a>
-            <a href="#" class="war-card p-6 flex flex-col items-center gap-3">
+            <a href="https://youtube.com/@azzfit1" class="war-card p-6 flex flex-col items-center gap-3">
                 <i class="fab fa-youtube text-4xl"></i>
                 <span class="text-xs font-black">YOUTUBE</span>
             </a>
-            <a href="#" class="war-card p-6 flex flex-col items-center gap-3">
+            <a href="https://soundcloud.com/azzfit1" class="war-card p-6 flex flex-col items-center gap-3">
                 <i class="fab fa-soundcloud text-4xl"></i>
                 <span class="text-xs font-black">SOUNDCLOUD</span>
             </a>
-            <a href="#" class="war-card p-6 flex flex-col items-center gap-3">
+            <a href="https://tiktok.com/@azzfitrider" class="war-card p-6 flex flex-col items-center gap-3">
                 <i class="fab fa-discord text-4xl"></i>
                 <span class="text-xs font-black">DISCORD</span>
             </a>
@@ -220,6 +235,12 @@
             <p>> WEAPON_SYSTEM: PANZERFAUST_DEBUT_TAPE</p>
             <p>> ESTIMATED_IMPACT: 2026</p>
             <p>> STATUS: ARE_U_READY?</p>
+        </div>
+
+        <div class="player-container border-2 border-green-500 font-bold italic">
+            <span class="text-[10px]">VOLUME:</span>
+            <input type="range" id="volume-control" min="0" max="1" step="0.01" value="0.5" class="w-full accent-green-500 bg-green-900">
+            <span id="player-label" class="text-[12px] whitespace-nowrap">PLAYER</span>
         </div>
     </div>
 
@@ -237,39 +258,43 @@
         const coords = document.getElementById('coords');
         const flash = document.getElementById('flash');
         const music = document.getElementById('bg-music');
+        const volumeControl = document.getElementById('volume-control');
 
+        // CELOWNIK - TRACKING BEZ OPÓŹNIEŃ (FIXED)
         document.addEventListener('mousemove', (e) => {
             crosshair.style.left = e.clientX + 'px';
             crosshair.style.top = e.clientY + 'px';
-            coords.innerText = `X:${e.clientX} Y:${e.clientY}`;
+            coords.innerText = `X:${Math.round(e.clientX)} Y:${Math.round(e.clientY)}`;
         });
 
+        // KLIKANIE
         document.addEventListener('mousedown', () => {
             crosshair.style.transform = 'translate(-50%, -50%) scale(0.8)';
-            triggerFlash();
+            flash.style.opacity = '0.3';
+            setTimeout(() => { flash.style.opacity = '0'; }, 50);
         });
 
         document.addEventListener('mouseup', () => {
             crosshair.style.transform = 'translate(-50%, -50%) scale(1)';
         });
 
-        function triggerFlash() {
-            flash.style.opacity = '0.3';
-            setTimeout(() => { flash.style.opacity = '0'; }, 50);
-        }
+        // AUDIO
+        volumeControl.addEventListener('input', (e) => {
+            music.volume = e.target.value;
+        });
 
         function initSystem() {
             document.getElementById('enter-screen').style.display = 'none';
-            music.play();
-            music.volume = 0.5;
+            music.play().catch(e => console.log("Audio block: " + e));
+            music.volume = volumeControl.value;
             
-            // Random Glitch Effect
+            // Glitch effect
             setInterval(() => {
-                if(Math.random() > 0.9) {
+                if(Math.random() > 0.95) {
                     document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-                    setTimeout(() => { document.body.style.filter = 'none'; }, 30);
+                    setTimeout(() => { document.body.style.filter = 'none'; }, 50);
                 }
-            }, 2000);
+            }, 3000);
         }
     </script>
 </body>

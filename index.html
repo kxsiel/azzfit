@@ -35,7 +35,6 @@
             background-color: var(--black);
             color: var(--tox-green);
             font-family: 'Fira Code', monospace;
-            /* ZMIANA: overflow ukryty na starcie */
             overflow: hidden; 
             min-height: 100vh;
             margin: 0;
@@ -166,17 +165,42 @@
             background: rgba(0, 10, 0, 0.8);
         }
 
+        /* NOWE STYLE INTRO KONSOLI */
         #enter-screen {
-            position: fixed; inset: 0; background: black; z-index: 20000; 
-            display: flex; flex-direction: column; align-items: center; 
-            justify-content: center; text-align: center; padding: 20px;
-            overflow: hidden; /* Dodatkowe zabezpieczenie paska na iPhone */
+            position: fixed; inset: 0; background: var(--black); z-index: 20000; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; overflow: hidden; cursor: pointer;
         }
 
-        #enter-screen h1 { font-size: 1.5rem; letter-spacing: 0.3rem; }
-        @media (min-width: 768px) {
-            #enter-screen h1 { font-size: 2.5rem; letter-spacing: 1rem; }
+        .terminal-container {
+            width: 100%; max-width: 800px;
+            text-align: left;
+            font-size: 12px;
+            text-shadow: 0 0 8px var(--tox-green);
         }
+        
+        @media (min-width: 768px) {
+            .terminal-container { font-size: 16px; }
+        }
+
+        .terminal-line { margin-bottom: 0.3rem; display: block; word-wrap: break-word; }
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .scroll-top-btn {
+            position: fixed; bottom: 70px; right: 20px; width: 45px; height: 45px;
+            border: 2px solid var(--tox-green); border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; color: var(--tox-green);
+            background: rgba(0, 0, 0, 0.8); cursor: pointer; z-index: 10002;
+            transition: all 0.3s ease; opacity: 0; visibility: hidden;
+        }
+        .scroll-top-btn.visible { opacity: 1; visibility: visible; }
+        .scroll-top-btn:hover { background: var(--tox-green); color: black; box-shadow: 0 0 20px var(--tox-green); }
+
+        .footer-content { margin-top: 40px; padding-bottom: 80px; text-align: center; font-family: 'Fira Code', monospace; text-transform: uppercase; }
+        .footer-mail { font-size: 14px; letter-spacing: 1px; color: var(--tox-green); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; transition: opacity 0.2s; }
+        .footer-mail:hover { opacity: 0.7; }
+        .footer-copy { font-size: 10px; opacity: 0.4; letter-spacing: 2px; }
     </style>
 </head>
 <body class="py-10 px-4 md:px-0">
@@ -195,21 +219,18 @@
         </div>
     </div>
 
-    <div id="enter-screen" onclick="initSystem()">
-        <div class="text-6xl md:text-[10rem] animate-pulse mb-4">☣</div>
-        <h1 class="font-black mb-8 uppercase">PANZERFAUST_2026</h1>
-        <button class="border-4 border-green-500 p-4 md:p-6 text-xl md:text-2xl hover:bg-green-500 hover:text-black transition-all font-black">
-            [ J O I N ]
-        </button>
+    <div id="enter-screen">
+        <div class="terminal-container" id="terminal-output"></div>
+        <div id="skip-prompt" class="mt-8 text-xl md:text-2xl animate-pulse hidden font-black border-4 border-green-500 p-4 hover:bg-green-500 hover:text-black transition-all uppercase text-center w-full max-w-[800px]">
+            [ INITIALIZE SYSTEM ]
+        </div>
     </div>
-
-    
 
     <audio id="bg-music" loop>
         <source src="zabka.mp3" type="audio/mp3">
     </audio>
 
-    <div class="max-w-[700px] mx-auto space-y-6 md:space-y-10 relative z-10 pb-32">
+    <div class="max-w-[700px] mx-auto space-y-6 md:space-y-10 relative z-10">
         <div class="war-card p-6 md:p-8">
             <div class="flex flex-col md:flex-row items-center gap-6">
                 <img src="https://i.imgur.com/Dx3U76e.png" class="w-24 h-24 md:w-32 md:h-32 border-2 border-green-500 brightness-150 contrast-150" alt="AZZFIT">
@@ -275,24 +296,38 @@
             <input type="range" id="volume-control" min="0" max="1" step="0.01" value="0.5" class="w-full accent-green-500 bg-green-900">
             <span id="player-label" class="text-[10px] md:text-[12px] whitespace-nowrap">SYSTEM_AUDIO</span>
         </div>
+
+        <div class="footer-content">
+            <a href="mailto:aveazzfitmgmt@gmail.com" class="footer-mail">
+                <i class="far fa-envelope"></i> aveazzfitmgmt@gmail.com
+            </a>
+            <div class="footer-copy">
+                © AZZFIT 2026 COPYRIGHT. ALL RIGHTS RESERVED.
+            </div>
+        </div>
     </div>
 
-    <div id="radar-bar">
+    <button id="scrollToTop" class="scroll-top-btn">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
+    <div id="radar-bar">
         <div class="ticker-wrap">
-<div class="ticker-item">>> STATUS: PANZERFAUST DEBUT TAPE DROPS IN 2026 <<</div>
-<div class="ticker-item">2026 IS OURS // CHECK THE LATEST RELEASES</div>
-<div class="ticker-item">SYSTEM OVERRIDE: WE ARE GOING TO DESTROY THIS YEAR // WATCH US</div>
-<div class="ticker-item">WARNING: HARDTEKK ENERGY LEVELS EXCEEDED</div>
+            <div class="ticker-item">>> STATUS: PANZERFAUST DEBUT TAPE DROPS IN 2026 <<</div>
+            <div class="ticker-item">2026 IS OURS // CHECK THE LATEST RELEASES</div>
+            <div class="ticker-item">SYSTEM OVERRIDE: WE ARE GOING TO DESTROY THIS YEAR // WATCH US</div>
+            <div class="ticker-item">WARNING: HARDTEKK ENERGY LEVELS EXCEEDED</div>
         </div>
     </div>
 
     <script>
+        // KURSOR I EFEKTY
         const crosshair = document.getElementById('crosshair');
         const coords = document.getElementById('coords');
         const flash = document.getElementById('flash');
         const music = document.getElementById('bg-music');
         const volumeControl = document.getElementById('volume-control');
+        const scrollBtn = document.getElementById('scrollToTop');
 
         document.addEventListener('mousemove', (e) => {
             if (window.matchMedia("(pointer: fine)").matches) {
@@ -316,11 +351,90 @@
             music.volume = e.target.value;
         });
 
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        scrollBtn.addEventListener('click', () => {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        // ---------------------------------------------------
+        // SYSTEM BOOT (TERMINAL INTRO)
+        // ---------------------------------------------------
+        const terminalLines = [
+            "AZZFIT [Version 6.6.6]",
+            "(c) 2026 AZZFIT Corporation. All rights reserved.",
+            "",
+            "C:\\SYSTEM> root_access -grant",
+            "[OK] ROOT ACCESS GRANTED.",
+            "C:\\SYSTEM> execute_panzerfaust.sh",
+            "[OK] BYPASS SUCCESSFUL",
+            "",
+            "> [ A Z Z F I T // P A N Z E R F A U S T _ 2 0 2 6 ]",
+            "",
+            "[*] MOUNTING PAYLOAD...",
+            "DECRYPTING... 10%... 45%... 89%... 100%",
+            "PAYLOAD READY.",
+            "",
+            "> CLICK ANYWHERE TO CONTINUE"
+        ];
+
+        let currentLine = 0;
+        let currentChar = 0;
+        const terminalOutput = document.getElementById('terminal-output');
+        const skipPrompt = document.getElementById('skip-prompt');
+        let introSkipped = false;
+        let typingTimeout;
+
+        function typeTerminal() {
+            if (introSkipped) return; // Przerwij animację jeśli pominięto
+
+            if (currentLine < terminalLines.length) {
+                if (currentChar === 0) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'terminal-line';
+                    lineDiv.id = 'line-' + currentLine;
+                    terminalOutput.appendChild(lineDiv);
+                }
+
+                const lineElement = document.getElementById('line-' + currentLine);
+                lineElement.innerHTML = terminalLines[currentLine].substring(0, currentChar + 1) + '<span class="cursor-blink">_</span>';
+                currentChar++;
+
+                if (currentChar >= terminalLines[currentLine].length) {
+                    lineElement.innerHTML = terminalLines[currentLine]; // Usuń kursor
+                    currentLine++;
+                    currentChar = 0;
+                    
+                    // Losowe opóźnienia między linijkami dla realizmu
+                    let delay = Math.random() * 100 + 50; 
+                    if (currentLine > 0 && terminalLines[currentLine - 1] === "") delay = 250;
+                    if (currentLine > 0 && terminalLines[currentLine - 1].includes("DECRYPTING")) delay = 600;
+
+                    typingTimeout = setTimeout(typeTerminal, delay);
+                } else {
+                    typingTimeout = setTimeout(typeTerminal, 15); // Prędkość pisania znaków
+                }
+            } else {
+                skipPrompt.classList.remove('hidden');
+            }
+        }
+
+        // Start animacji
+        typeTerminal();
+
+        // Funkcja uruchamiająca właściwą stronę
         function initSystem() {
-            // Ukrycie ekranu wejściowego
+            if(introSkipped) return;
+            introSkipped = true;
+            clearTimeout(typingTimeout);
+
             document.getElementById('enter-screen').style.display = 'none';
-            
-            // ZMIANA: Włączenie przewijania po wejściu na stronę
             document.body.style.overflowX = 'hidden';
             document.body.style.overflowY = 'auto';
 
@@ -339,15 +453,16 @@
             }
 
             document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                music.pause();
-            } else {
-                if (document.getElementById('enter-screen').style.display === 'none') {
-                    music.play();
+                if (document.hidden) {
+                    music.pause();
+                } else {
+                    if (document.getElementById('enter-screen').style.display === 'none') {
+                        music.play();
+                    }
                 }
-            }
-        });
+            });
             
+            // Glitche
             setInterval(() => {
                 if(Math.random() > 0.95) {
                     document.body.style.filter = 'invert(1) hue-rotate(180deg)';
@@ -355,6 +470,16 @@
                 }
             }, 3000);
         }
+
+        // Podpięcie pomijania intro - działa na kliknięcie GZIEKOLWIEK lub jakikolwiek klawisz
+        const enterScreen = document.getElementById('enter-screen');
+        enterScreen.addEventListener('click', initSystem);
+        document.addEventListener('keydown', (e) => {
+            if(enterScreen.style.display !== 'none') {
+                initSystem();
+            }
+        });
+
     </script>
 </body>
 </html>

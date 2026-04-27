@@ -386,13 +386,14 @@
 
         let currentLine = 0;
         let currentChar = 0;
+        let isTerminalFinished = false; // Blokada wejścia przed końcem pisania
         const terminalOutput = document.getElementById('terminal-output');
         const skipPrompt = document.getElementById('skip-prompt');
         let introSkipped = false;
         let typingTimeout;
 
         function typeTerminal() {
-            if (introSkipped) return; // Przerwij animację jeśli pominięto
+            if (introSkipped) return;
 
             if (currentLine < terminalLines.length) {
                 if (currentChar === 0) {
@@ -407,30 +408,30 @@
                 currentChar++;
 
                 if (currentChar >= terminalLines[currentLine].length) {
-                    lineElement.innerHTML = terminalLines[currentLine]; // Usuń kursor
+                    lineElement.innerHTML = terminalLines[currentLine];
                     currentLine++;
                     currentChar = 0;
                     
-                    // Losowe opóźnienia między linijkami dla realizmu
-                    let delay = Math.random() * 100 + 50; 
-                    if (currentLine > 0 && terminalLines[currentLine - 1] === "") delay = 250;
-                    if (currentLine > 0 && terminalLines[currentLine - 1].includes("DECRYPTING")) delay = 600;
+                    let delay = Math.random() * 80 + 30; 
+                    if (currentLine > 0 && terminalLines[currentLine - 1] === "") delay = 200;
+                    if (currentLine > 0 && terminalLines[currentLine - 1].includes("DECRYPTING")) delay = 500;
 
                     typingTimeout = setTimeout(typeTerminal, delay);
                 } else {
-                    typingTimeout = setTimeout(typeTerminal, 15); // Prędkość pisania znaków
+                    typingTimeout = setTimeout(typeTerminal, 10);
                 }
             } else {
+                isTerminalFinished = true; // Koniec animacji - pozwól wejść
                 skipPrompt.classList.remove('hidden');
             }
         }
 
-        // Start animacji
         typeTerminal();
 
-        // Funkcja uruchamiająca właściwą stronę
         function initSystem() {
-            if(introSkipped) return;
+            // Blokada: Nic nie rób, jeśli terminal jeszcze pisze
+            if(!isTerminalFinished || introSkipped) return; 
+            
             introSkipped = true;
             clearTimeout(typingTimeout);
 
@@ -441,37 +442,19 @@
             music.load();
             music.volume = volumeControl.value;
             
-            let playPromise = music.play();
-            if (playPromise !== undefined) {
-                playPromise.then(_ => {
-                    console.log("System audio: READY");
-                }).catch(error => {
-                    document.body.addEventListener('click', () => {
-                        music.play();
-                    }, { once: true });
-                });
-            }
-
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    music.pause();
-                } else {
-                    if (document.getElementById('enter-screen').style.display === 'none') {
-                        music.play();
-                    }
-                }
+            music.play().catch(error => {
+                console.log("Audio waiting for user...");
             });
-            
+
             // Glitche
             setInterval(() => {
-                if(Math.random() > 0.95) {
-                    document.body.style.filter = 'invert(1) hue-rotate(180deg)';
-                    setTimeout(() => { document.body.style.filter = 'none'; }, 50);
+                if(Math.random() > 0.96) {
+                    document.body.style.filter = 'invert(1) hue-rotate(180deg) contrast(1.5)';
+                    setTimeout(() => { document.body.style.filter = 'none'; }, 60);
                 }
-            }, 3000);
+            }, 2500);
         }
 
-        // Podpięcie pomijania intro - działa na kliknięcie GZIEKOLWIEK lub jakikolwiek klawisz
         const enterScreen = document.getElementById('enter-screen');
         enterScreen.addEventListener('click', initSystem);
         document.addEventListener('keydown', (e) => {
@@ -479,7 +462,6 @@
                 initSystem();
             }
         });
-
     </script>
 </body>
 </html>

@@ -14,19 +14,6 @@
             --black: #050505;
         }
 
-// --- FIX: STOP MUZYKI PO ZMIANIE KARTY ---
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // Jeśli użytkownik wyjdzie z karty - pauza
-        music.pause();
-    } else {
-        // Jeśli wróci i system był już odpalony (introSkipped) - graj dalej
-        if (introSkipped) {
-            music.play().catch(e => console.log("System standby..."));
-        }
-    }
-});
-        
         /* CUSTOMOWY PASEK PRZEWIJANIA */
         ::-webkit-scrollbar {
             width: 8px;
@@ -396,7 +383,7 @@ document.addEventListener('visibilitychange', () => {
 
         let currentLine = 0;
         let currentChar = 0;
-        let isTerminalFinished = false; // Blokada wejścia przed końcem pisania
+        let isTerminalFinished = false; 
         const terminalOutput = document.getElementById('terminal-output');
         const skipPrompt = document.getElementById('skip-prompt');
         let introSkipped = false;
@@ -431,7 +418,7 @@ document.addEventListener('visibilitychange', () => {
                     typingTimeout = setTimeout(typeTerminal, 10);
                 }
             } else {
-                isTerminalFinished = true; // Koniec animacji - pozwól wejść
+                isTerminalFinished = true; 
                 skipPrompt.classList.remove('hidden');
             }
         }
@@ -439,7 +426,6 @@ document.addEventListener('visibilitychange', () => {
         typeTerminal();
 
         function initSystem() {
-            // Blokada: Nic nie rób, jeśli terminal jeszcze pisze
             if(!isTerminalFinished || introSkipped) return; 
             
             introSkipped = true;
@@ -470,6 +456,17 @@ document.addEventListener('visibilitychange', () => {
         document.addEventListener('keydown', (e) => {
             if(enterScreen.style.display !== 'none') {
                 initSystem();
+            }
+        });
+
+        // --- FIX: STOP MUZYKI PO ZMIANIE KARTY ---
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                music.pause();
+            } else {
+                if (introSkipped) {
+                    music.play().catch(e => console.log("System standby..."));
+                }
             }
         });
     </script>

@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AZZFIT</title>
+    <title>A</title>
+    
+    <link id="favicon" rel="icon" type="image/png" href="https://i.imgur.com/SAqqnDH.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         :root {
             --tox-green: #00ff41;
@@ -165,7 +169,6 @@
             background: rgba(0, 10, 0, 0.8);
         }
 
-        /* NOWE STYLE INTRO KONSOLI */
         #enter-screen {
             position: fixed; inset: 0; background: var(--black); z-index: 20000; 
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -266,7 +269,7 @@
         </a>
 
         <div class="grid grid-cols-2 gap-4">
-            <a href="https://open.spotify.com/artist/1vJnRexjkzusA8ZBZUkp4o?si=0_qjS3F9SQ-gNXufSIi4yA" class="war-card p-4 md:p-6 flex flex-col items-center gap-3">
+            <a href="https://open.spotify.com/artist/your_id" class="war-card p-4 md:p-6 flex flex-col items-center gap-3">
                 <i class="fab fa-spotify text-3xl md:text-4xl"></i>
                 <span class="text-[10px] md:text-xs font-black">SPOTIFY</span>
             </a>
@@ -321,6 +324,30 @@
     </div>
 
     <script>
+        // --- ANIMACJA TYTUŁU I FAVICONU ---
+        const titleText = "AZZFIT";
+        let titleIdx = 0;
+        const faviconEl = document.getElementById('favicon');
+        
+        // Możesz dodać tu alternatywną ikonę (np. pustą lub z innym kolorem), 
+        // aby favicon "migał" razem z tekstem. Na razie używamy Twojej głównej.
+        const faviconURL = "https://i.imgur.com/SAqqnDH.png";
+
+        function animateTitle() {
+            titleIdx++;
+            if (titleIdx > titleText.length) {
+                titleIdx = 0;
+                // Opcjonalnie: chwilowe ukrycie faviconu przy "zerowaniu" (efekt glitcha)
+                faviconEl.href = ""; 
+            } else {
+                faviconEl.href = faviconURL;
+            }
+            
+            document.title = titleIdx === 0 ? " " : titleText.substring(0, titleIdx);
+            setTimeout(animateTitle, 400); // Prędkość animacji
+        }
+        animateTitle();
+
         // KURSOR I EFEKTY
         const crosshair = document.getElementById('crosshair');
         const coords = document.getElementById('coords');
@@ -363,21 +390,16 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         });
 
-        // ---------------------------------------------------
         // SYSTEM BOOT (TERMINAL INTRO)
-        // ---------------------------------------------------
         const terminalLines = [
             "AZZFIT [Version 6.6.6]",
             "(c) 2026 AZZFIT Corporation. All rights reserved.",
             "",
-            "0%.",
-            "10%..",
-            "89%...",
+            "0%.", "10%..", "89%...",
             "[OK] BYPASS SUCCESSFUL",
             "",
             "> [ A Z Z F I T // P A N Z E R F A U S T _ 2 0 2 6 ]",
-            "",
-            "PAYLOAD READY.",
+            "", "PAYLOAD READY.",
             "> CLICK ANYWHERE TO CONTINUE"
         ];
 
@@ -391,7 +413,6 @@
 
         function typeTerminal() {
             if (introSkipped) return;
-
             if (currentLine < terminalLines.length) {
                 if (currentChar === 0) {
                     const lineDiv = document.createElement('div');
@@ -399,20 +420,14 @@
                     lineDiv.id = 'line-' + currentLine;
                     terminalOutput.appendChild(lineDiv);
                 }
-
                 const lineElement = document.getElementById('line-' + currentLine);
                 lineElement.innerHTML = terminalLines[currentLine].substring(0, currentChar + 1) + '<span class="cursor-blink">_</span>';
                 currentChar++;
-
                 if (currentChar >= terminalLines[currentLine].length) {
                     lineElement.innerHTML = terminalLines[currentLine];
                     currentLine++;
                     currentChar = 0;
-                    
                     let delay = Math.random() * 80 + 30; 
-                    if (currentLine > 0 && terminalLines[currentLine - 1] === "") delay = 200;
-                    if (currentLine > 0 && terminalLines[currentLine - 1].includes("DECRYPTING")) delay = 500;
-
                     typingTimeout = setTimeout(typeTerminal, delay);
                 } else {
                     typingTimeout = setTimeout(typeTerminal, 10);
@@ -422,27 +437,18 @@
                 skipPrompt.classList.remove('hidden');
             }
         }
-
         typeTerminal();
 
         function initSystem() {
             if(!isTerminalFinished || introSkipped) return; 
-            
             introSkipped = true;
             clearTimeout(typingTimeout);
-
             document.getElementById('enter-screen').style.display = 'none';
-            document.body.style.overflowX = 'hidden';
             document.body.style.overflowY = 'auto';
-
             music.load();
             music.volume = volumeControl.value;
-            
-            music.play().catch(error => {
-                console.log("Audio waiting for user...");
-            });
+            music.play().catch(e => console.log("Audio standby..."));
 
-            // Glitche
             setInterval(() => {
                 if(Math.random() > 0.96) {
                     document.body.style.filter = 'invert(1) hue-rotate(180deg) contrast(1.5)';
@@ -453,21 +459,11 @@
 
         const enterScreen = document.getElementById('enter-screen');
         enterScreen.addEventListener('click', initSystem);
-        document.addEventListener('keydown', (e) => {
-            if(enterScreen.style.display !== 'none') {
-                initSystem();
-            }
-        });
+        document.addEventListener('keydown', (e) => { if(enterScreen.style.display !== 'none') initSystem(); });
 
-        // --- FIX: STOP MUZYKI PO ZMIANIE KARTY ---
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                music.pause();
-            } else {
-                if (introSkipped) {
-                    music.play().catch(e => console.log("System standby..."));
-                }
-            }
+            if (document.hidden) music.pause();
+            else if (introSkipped) music.play().catch(e => {});
         });
     </script>
 </body>

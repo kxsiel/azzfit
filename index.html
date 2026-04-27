@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AZZFIT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
@@ -28,18 +28,24 @@
         }
         
         html {
-            scroll-behavior: smooth; /* Standardowy smooth scroll przeglądarki, który nie psuje JS */
+            scroll-behavior: smooth;
         }
 
         body {
             background-color: var(--black);
             color: var(--tox-green);
             font-family: 'Fira Code', monospace;
-            overflow-x: hidden;
+            /* ZMIANA: overflow ukryty na starcie */
+            overflow: hidden; 
             min-height: 100vh;
-            cursor: none; 
             margin: 0;
             position: relative;
+            cursor: none; 
+        }
+
+        @media (pointer: coarse) {
+            body { cursor: auto; }
+            #cursor-container { display: none; }
         }
 
         .image-bg {
@@ -47,6 +53,7 @@
             inset: 0;
             background: url('https://cdn.jumpshare.com/preview/xEsA4RiapbC10FNTb7kx_d-aQwOJU98MXcIIIUgoHIlWkyrACaXw7Q_tHd4RqM4Vi5wnx0mw_oeUl6aLl9YGREFrpWYPl5NJNeuPmcc9Qm4') no-repeat center center;
             background-size: cover;
+            -webkit-filter: grayscale(100%) brightness(1.5) contrast(150%) sepia(100%) hue-rotate(70deg) saturate(500%);
             filter: grayscale(100%) brightness(1.5) contrast(150%) sepia(100%) hue-rotate(70deg) saturate(500%);
             mix-blend-mode: screen; 
             opacity: 0.15;
@@ -90,7 +97,7 @@
         }
 
         #crosshair {
-            position: fixed; /* FIXED ZAŁATWIA PROBLEM ZE SCROLLEM */
+            position: fixed;
             width: 80px; height: 80px;
             transform: translate(-50%, -50%);
             display: flex; align-items: center; justify-content: center;
@@ -116,14 +123,21 @@
             border: 2px solid var(--tox-green);
             box-shadow: inset 0 0 20px var(--dark-tox);
             position: relative;
-            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            clip-path: polygon(5% 0, 100% 0, 100% 85%, 95% 100%, 0 100%, 0 15%);
             transition: all 0.2s;
         }
+        
+        @media (min-width: 768px) {
+            .war-card { clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%); }
+        }
+
         .war-card:hover {
             background: var(--tox-green);
-            color: black;
+            color: black !important;
             box-shadow: 0 0 40px var(--tox-green);
         }
+
+        .war-card:hover * { color: black !important; }
 
         #radar-bar {
             position: fixed; bottom: 0; left: 0; width: 100%;
@@ -133,7 +147,12 @@
             font-family: 'Space Grotesk', sans-serif;
         }
         .ticker-wrap { display: flex; white-space: nowrap; animation: ticker 15s linear infinite; }
-        .ticker-item { padding: 0 40px; font-size: 1.5rem; text-transform: uppercase; }
+        .ticker-item { padding: 0 40px; font-size: 1.2rem; text-transform: uppercase; }
+        
+        @media (min-width: 768px) {
+            .ticker-item { font-size: 1.5rem; }
+        }
+
         @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         #flash { position: fixed; inset: 0; background: var(--tox-green); opacity: 0; z-index: 10005; pointer-events: none; }
@@ -146,9 +165,21 @@
             gap: 15px;
             background: rgba(0, 10, 0, 0.8);
         }
+
+        #enter-screen {
+            position: fixed; inset: 0; background: black; z-index: 20000; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; text-align: center; padding: 20px;
+            overflow: hidden; /* Dodatkowe zabezpieczenie paska na iPhone */
+        }
+
+        #enter-screen h1 { font-size: 1.5rem; letter-spacing: 0.3rem; }
+        @media (min-width: 768px) {
+            #enter-screen h1 { font-size: 2.5rem; letter-spacing: 1rem; }
+        }
     </style>
 </head>
-<body class="py-10 px-4">
+<body class="py-10 px-4 md:px-0">
 
     <div class="crt-overlay"></div>
     <div class="image-bg"></div>
@@ -164,10 +195,10 @@
         </div>
     </div>
 
-    <div id="enter-screen" style="position:fixed; inset:0; background:black; z-index:20000; display:flex; flex-direction:column; align-items:center; justify-content:center;" onclick="initSystem()">
-        <div class="text-[10rem] animate-pulse">☣</div>
-        <h1 class="text-4xl font-black mb-8 tracking-[1rem]">PANZERFAUST_2026</h1>
-        <button class="border-4 border-green-500 p-6 text-2xl hover:bg-green-500 hover:text-black transition-all font-black">
+    <div id="enter-screen" onclick="initSystem()">
+        <div class="text-6xl md:text-[10rem] animate-pulse mb-4">☣</div>
+        <h1 class="font-black mb-8 uppercase">PANZERFAUST_2026</h1>
+        <button class="border-4 border-green-500 p-4 md:p-6 text-xl md:text-2xl hover:bg-green-500 hover:text-black transition-all font-black">
             [ J O I N ]
         </button>
     </div>
@@ -176,14 +207,14 @@
         <source src="fiut.mp3" type="audio/mp3">
     </audio>
 
-    <div class="max-w-[700px] mx-auto space-y-10 relative z-10 pb-32">
-        <div class="war-card p-8">
-            <div class="flex items-center gap-6">
-                <img src="https://i.imgur.com/Dx3U76e.png" class="w-32 h-32 border-2 border-green-500 brightness-150 contrast-150" alt="AZZFIT">
-                <div>
-                    <h1 class="text-6xl font-black italic uppercase tracking-tighter">AZZFIT</h1>
-                    <p class="text-xs mt-2 font-bold bg-green-500 text-black inline-block px-2">HARDTEKK SENSEI</p>
-                    <div class="flex gap-2 mt-4">
+    <div class="max-w-[700px] mx-auto space-y-6 md:space-y-10 relative z-10 pb-32">
+        <div class="war-card p-6 md:p-8">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <img src="https://i.imgur.com/Dx3U76e.png" class="w-24 h-24 md:w-32 md:h-32 border-2 border-green-500 brightness-150 contrast-150" alt="AZZFIT">
+                <div class="text-center md:text-left">
+                    <h1 class="text-4xl md:text-6xl font-black italic uppercase tracking-tighter">AZZFIT</h1>
+                    <p class="text-[10px] md:text-xs mt-2 font-bold bg-green-500 text-black inline-block px-2">HARDTEKK SENSEI</p>
+                    <div class="flex justify-center md:justify-start gap-2 mt-4">
                         <div class="w-3 h-3 bg-green-500 animate-ping"></div>
                         <span class="text-[10px]">ALBUM_LOADING: ?%</span>
                     </div>
@@ -194,43 +225,43 @@
         <a href="https://ffm.to/azzfit-nike" target="_blank" class="war-card block p-6 group">
             <div class="flex justify-between items-center">
                 <div>
-                    <div class="text-xs mb-1 opacity-70">[LATEST RELEASE!]</div>
-                    <div class="text-3xl font-black">AZZFIT - NIKE</div>
+                    <div class="text-[10px] md:text-xs mb-1 opacity-70">[LATEST RELEASE!]</div>
+                    <div class="text-xl md:text-3xl font-black">AZZFIT - NIKE</div>
                 </div>
-                <div class="text-5xl group-hover:translate-x-4 transition-transform"><i class="fas fa-radiation"></i></div>
+                <div class="text-3xl md:text-5xl group-hover:translate-x-4 transition-transform"><i class="fas fa-radiation"></i></div>
             </div>
         </a>
 
         <a href="https://www.instagram.com/azzfitrider/" target="_blank" class="war-card block p-6 group">
             <div class="flex justify-between items-center">
                 <div>
-                    <div class="text-xs mb-1 opacity-70">[FOLLOW ME!]</div>
-                    <div class="text-3xl font-black">INSTAGRAM</div>
+                    <div class="text-[10px] md:text-xs mb-1 opacity-70">[FOLLOW ME!]</div>
+                    <div class="text-xl md:text-3xl font-black">INSTAGRAM</div>
                 </div>
-                <div class="text-5xl group-hover:translate-x-4 transition-transform"><i class="fab fa-instagram"></i></div>
+                <div class="text-3xl md:text-5xl group-hover:translate-x-4 transition-transform"><i class="fab fa-instagram"></i></div>
             </div>
         </a>
 
         <div class="grid grid-cols-2 gap-4">
-            <a href="https://open.spotify.com/artist/1vJnRexjkzusA8ZBZUkp4o?si=0_qjS3F9SQ-gNXufSIi4yA" class="war-card p-6 flex flex-col items-center gap-3">
-                <i class="fab fa-spotify text-4xl"></i>
-                <span class="text-xs font-black">SPOTIFY</span>
+            <a href="https://open.spotify.com/artist/1vJnRexjkzusA8ZBZUkp4o?si=0_qjS3F9SQ-gNXufSIi4yA" class="war-card p-4 md:p-6 flex flex-col items-center gap-3">
+                <i class="fab fa-spotify text-3xl md:text-4xl"></i>
+                <span class="text-[10px] md:text-xs font-black">SPOTIFY</span>
             </a>
-            <a href="https://youtube.com/@azzfit1" class="war-card p-6 flex flex-col items-center gap-3">
-                <i class="fab fa-youtube text-4xl"></i>
-                <span class="text-xs font-black">YOUTUBE</span>
+            <a href="https://youtube.com/@azzfit1" class="war-card p-4 md:p-6 flex flex-col items-center gap-3">
+                <i class="fab fa-youtube text-3xl md:text-4xl"></i>
+                <span class="text-[10px] md:text-xs font-black">YOUTUBE</span>
             </a>
-            <a href="https://soundcloud.com/azzfit1" class="war-card p-6 flex flex-col items-center gap-3">
-                <i class="fab fa-soundcloud text-4xl"></i>
-                <span class="text-xs font-black">SOUNDCLOUD</span>
+            <a href="https://soundcloud.com/azzfit1" class="war-card p-4 md:p-6 flex flex-col items-center gap-3">
+                <i class="fab fa-soundcloud text-3xl md:text-4xl"></i>
+                <span class="text-[10px] md:text-xs font-black">SOUNDCLOUD</span>
             </a>
-            <a href="https://tiktok.com/@azzfitrider" class="war-card p-6 flex flex-col items-center gap-3">
-                <i class="fab fa-tiktok text-4xl"></i>
-                <span class="text-xs font-black">TIKTOK</span>
+            <a href="https://tiktok.com/@azzfitrider" class="war-card p-4 md:p-6 flex flex-col items-center gap-3">
+                <i class="fab fa-tiktok text-3xl md:text-4xl"></i>
+                <span class="text-[10px] md:text-xs font-black">TIKTOK</span>
             </a>
         </div>
 
-        <div class="bg-black border border-green-900 p-4 text-[10px] leading-tight opacity-60">
+        <div class="bg-black border border-green-900 p-4 text-[9px] md:text-[10px] leading-tight opacity-60">
             <p>> TARGET_ACQUIRED: WORLD_DOMINATION</p>
             <p>> WEAPON_SYSTEM: PANZERFAUST_DEBUT_TAPE</p>
             <p>> ESTIMATED_IMPACT: 2026</p>
@@ -238,17 +269,17 @@
         </div>
 
         <div class="player-container border-2 border-green-500 font-bold italic">
-            <span class="text-[10px]">VOLUME:</span>
+            <span class="text-[10px]">VOL:</span>
             <input type="range" id="volume-control" min="0" max="1" step="0.01" value="0.5" class="w-full accent-green-500 bg-green-900">
-            <span id="player-label" class="text-[12px] whitespace-nowrap">PLAYER</span>
+            <span id="player-label" class="text-[10px] md:text-[12px] whitespace-nowrap">SYSTEM_AUDIO</span>
         </div>
     </div>
 
     <div id="radar-bar">
-        <div class="bg-black text-green-500 px-6 h-full flex items-center font-black italic">! ALERT !</div>
+
         <div class="ticker-wrap">
             <div class="ticker-item">PANZERFAUST DEBUT TAPE DROPS IN 2026!</div>
-            <div class="ticker-item">YOUR MOTHER WILL BE FU...</div>
+            <div class="ticker-item">PREPARE FOR IMPACT</div>
             <div class="ticker-item">PANZERFAUST DEBUT TAPE DROPS IN 2026!</div>
         </div>
     </div>
@@ -260,14 +291,14 @@
         const music = document.getElementById('bg-music');
         const volumeControl = document.getElementById('volume-control');
 
-        // CELOWNIK - TRACKING BEZ OPÓŹNIEŃ (FIXED)
         document.addEventListener('mousemove', (e) => {
-            crosshair.style.left = e.clientX + 'px';
-            crosshair.style.top = e.clientY + 'px';
-            coords.innerText = `X:${Math.round(e.clientX)} Y:${Math.round(e.clientY)}`;
+            if (window.matchMedia("(pointer: fine)").matches) {
+                crosshair.style.left = e.clientX + 'px';
+                crosshair.style.top = e.clientY + 'px';
+                coords.innerText = `X:${Math.round(e.clientX)} Y:${Math.round(e.clientY)}`;
+            }
         });
 
-        // KLIKANIE
         document.addEventListener('mousedown', () => {
             crosshair.style.transform = 'translate(-50%, -50%) scale(0.8)';
             flash.style.opacity = '0.3';
@@ -278,41 +309,39 @@
             crosshair.style.transform = 'translate(-50%, -50%) scale(1)';
         });
 
-        // AUDIO
         volumeControl.addEventListener('input', (e) => {
             music.volume = e.target.value;
         });
 
-function initSystem() {
-            // Ukrywamy ekran wejściowy
+        function initSystem() {
+            // Ukrycie ekranu wejściowego
             document.getElementById('enter-screen').style.display = 'none';
             
-            // Wymuszamy załadowanie i start muzyki
-            music.load(); // Przeładowuje źródło, żeby przeglądarka je "zauważyła"
+            // ZMIANA: Włączenie przewijania po wejściu na stronę
+            document.body.style.overflowX = 'hidden';
+            document.body.style.overflowY = 'auto';
+
+            music.load();
             music.volume = volumeControl.value;
             
-            // Obietnica odtworzenia - najpewniejszy sposób w 2026
             let playPromise = music.play();
-
             if (playPromise !== undefined) {
                 playPromise.then(_ => {
                     console.log("System audio: READY");
                 }).catch(error => {
-                    console.log("Audio block bypass: Kliknij jeszcze raz gdziekolwiek");
-                    // Jeśli nadal blokuje, odpalamy przy następnym kliku w body
                     document.body.addEventListener('click', () => {
                         music.play();
                     }, { once: true });
                 });
             }
             
-            // Reszta efektów (glitch)
             setInterval(() => {
                 if(Math.random() > 0.95) {
                     document.body.style.filter = 'invert(1) hue-rotate(180deg)';
                     setTimeout(() => { document.body.style.filter = 'none'; }, 50);
                 }
             }, 3000);
-        }    </script>
+        }
+    </script>
 </body>
 </html>
